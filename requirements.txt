@@ -1,0 +1,2 @@
+# Only needed for local runs. Lambda's Python runtime already includes boto3.
+boto3>=1.35
