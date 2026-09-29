@@ -1,6 +1,6 @@
 """AWS spend and credits via Cost Explorer (ce:GetCostAndUsage / GetCostForecast).
 
-Limits (be honest in the email): Cost Explorer data lags up to ~24 h, and the REMAINING
+Limits (documented here, not shown in the email): Cost Explorer data lags up to ~24 h, and the REMAINING
 credit balance is not available through any API (see console: Billing > Credits).
 Each Cost Explorer API request costs about $0.01; this makes about 4 calls per run.
 """
