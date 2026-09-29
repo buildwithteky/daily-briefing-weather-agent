@@ -18,12 +18,14 @@ aws iam get-open-id-connect-provider --open-id-connect-provider-arn "$OIDC_ARN" 
   aws iam create-open-id-connect-provider --url https://token.actions.githubusercontent.com \
     --client-id-list sts.amazonaws.com --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1 >/dev/null
 
-echo ">> Deploy role (only $REPO on main)"
+# GitHub may sign tokens with an immutable repo ID instead of the plain name. Ask GitHub which one applies.
+SUB_PREFIX=$(gh api "repos/$REPO/actions/oidc/customization/sub" --jq 'if .use_immutable_subject then .sub_claim_prefix else "repo:'"$REPO"'" end' 2>/dev/null || echo "repo:$REPO")
+echo ">> Deploy role (only $REPO on main; token subject $SUB_PREFIX)"
 cat > /tmp/gh-trust.json <<JSON
 {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Federated":"$OIDC_ARN"},
  "Action":"sts:AssumeRoleWithWebIdentity",
  "Condition":{"StringEquals":{"token.actions.githubusercontent.com:aud":"sts.amazonaws.com",
- "token.actions.githubusercontent.com:sub":"repo:$REPO:ref:refs/heads/main"}}}]}
+ "token.actions.githubusercontent.com:sub":"$SUB_PREFIX:ref:refs/heads/main"}}}]}
 JSON
 aws iam create-role --role-name "$ROLE" --assume-role-policy-document file:///tmp/gh-trust.json >/dev/null 2>&1 || \
   aws iam update-assume-role-policy --role-name "$ROLE" --policy-document file:///tmp/gh-trust.json
