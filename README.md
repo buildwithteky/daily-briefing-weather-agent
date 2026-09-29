@@ -96,9 +96,18 @@ Privacy: the email snippets (first 500 characters of up to 30 messages) are sent
 If Gmail is unreachable the email says so instead of guessing. Revoke the app password anytime in your Google account.
 
 ## AWS billing and credits (optional)
-Topic `billing` adds: month-to-date usage, credits applied this month, yesterday's usage, a month-end forecast and the top 5 services.
+Topic `billing` adds these bullets to the email, in this fixed order:
+```
+- Month-to-date usage: 355.28 USD
+- Credits applied this month: 355.28 USD
+- Month-to-date net charge: 0.00 USD
+- Yesterday's usage: 12.43 USD
+- Forecast month-end usage: 380.72 USD
+- Top services: (top 5, with amounts)
+```
+The email contains only these figures, with no caveats or notes.
 - **One-time:** the account owner opens *Billing and Cost Management > Cost Explorer* and enables it (data appears within ~24 h). Without it the email says billing is unavailable.
-- **Limits:** data lags up to 24 h; the **remaining credit balance is not exposed by any AWS API** (see Billing > Credits in the console).
+- **Limits (documentation only, not shown in the email):** data lags up to 24 h, and the **remaining credit balance is not exposed by any AWS API** (see Billing > Credits in the console).
 - **Cost:** each Cost Explorer request is about $0.01 (about 4 per run, roughly $1.20/month at one run a day). Remove `billing` from `BRIEFING_TOPICS` to turn it off.
 - **IAM:** the Lambda role gets `ce:GetCostAndUsage` and `ce:GetCostForecast` only (read-only).
 
