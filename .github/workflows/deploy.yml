@@ -1,0 +1,74 @@
+name: Deploy
+
+# Tests every change; deploys to AWS when agent code, scripts or IAM policies change on main.
+# Sign-in to AWS uses GitHub OIDC (no stored access keys). One-time setup: scripts/setup-github-actions.sh
+on:
+  push:
+    branches: [main]
+    paths: ["src/**", "scripts/**", "iam/**", "tests/**", ".github/workflows/deploy.yml"]
+  pull_request:
+    paths: ["src/**", "tests/**"]
+  workflow_dispatch:
+    inputs:
+      smoke_test:
+        description: "Invoke the Lambda after deploy (sends a real briefing email)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover tests -v
+
+  deploy:
+    name: Deploy to AWS
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # required for OIDC
+      contents: read
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EMAIL: ${{ vars.EMAIL }}
+      CITY: ${{ vars.CITY }}
+      TIMEZONE: ${{ vars.TIMEZONE }}
+      SCHEDULE: ${{ vars.SCHEDULE }}
+      MODEL_ID: ${{ vars.MODEL_ID }}
+      BEDROCK_REGION: ${{ vars.BEDROCK_REGION }}
+      USER_NAME: ${{ vars.USER_NAME }}
+      BRIEFING_TOPICS: ${{ vars.BRIEFING_TOPICS }}
+      GMAIL_USER: ${{ vars.GMAIL_USER }}
+      GMAIL_LABEL: ${{ vars.GMAIL_LABEL }}
+      CALENDAR_ICS_URL: ${{ secrets.CALENDAR_ICS_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Deploy (SNS, DynamoDB, IAM, Lambda, EventBridge Scheduler)
+        run: ./scripts/deploy.sh
+
+      - name: Smoke test (optional)
+        if: github.event_name == 'workflow_dispatch' && inputs.smoke_test
+        run: |
+          aws lambda invoke --function-name daily-briefing-agent \
+            --payload '{"source":"github-actions"}' --cli-binary-format raw-in-base64-out out.json > /dev/null
+          python3 -c "import json;d=json.load(open('out.json'));print('status:',d['status'],d['sources']);assert d['status'] in ('delivered','partial','generated')"

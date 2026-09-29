@@ -1,0 +1,22 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Sid": "Identity", "Effect": "Allow", "Action": "sts:GetCallerIdentity", "Resource": "*" },
+    { "Sid": "Sns", "Effect": "Allow",
+      "Action": ["sns:CreateTopic", "sns:GetTopicAttributes", "sns:Subscribe", "sns:ListSubscriptionsByTopic"],
+      "Resource": "arn:aws:sns:*:__ACCOUNT_ID__:daily-briefing" },
+    { "Sid": "Dynamo", "Effect": "Allow",
+      "Action": ["dynamodb:CreateTable", "dynamodb:DescribeTable", "dynamodb:UpdateTimeToLive", "dynamodb:DescribeTimeToLive"],
+      "Resource": "arn:aws:dynamodb:*:__ACCOUNT_ID__:table/daily-briefing-runs" },
+    { "Sid": "ManageAgentRoles", "Effect": "Allow",
+      "Action": ["iam:CreateRole", "iam:GetRole", "iam:AttachRolePolicy", "iam:PutRolePolicy", "iam:PassRole"],
+      "Resource": ["arn:aws:iam::__ACCOUNT_ID__:role/daily-briefing-lambda-role", "arn:aws:iam::__ACCOUNT_ID__:role/daily-briefing-scheduler-role"] },
+    { "Sid": "Lambda", "Effect": "Allow",
+      "Action": ["lambda:CreateFunction", "lambda:GetFunction", "lambda:GetFunctionConfiguration", "lambda:UpdateFunctionCode",
+                 "lambda:UpdateFunctionConfiguration", "lambda:InvokeFunction"],
+      "Resource": "arn:aws:lambda:*:__ACCOUNT_ID__:function:daily-briefing-agent" },
+    { "Sid": "Scheduler", "Effect": "Allow",
+      "Action": ["scheduler:CreateSchedule", "scheduler:UpdateSchedule", "scheduler:GetSchedule"],
+      "Resource": "arn:aws:scheduler:*:__ACCOUNT_ID__:schedule/default/daily-briefing-9am" }
+  ]
+}
