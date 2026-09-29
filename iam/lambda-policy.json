@@ -1,0 +1,46 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "InvokeBedrockModels",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock:InvokeModel"
+      ],
+      "Resource": [
+        "arn:aws:bedrock:*::foundation-model/*",
+        "arn:aws:bedrock:*:__ACCOUNT_ID__:inference-profile/*"
+      ]
+    },
+    {
+      "Sid": "PublishBriefing",
+      "Effect": "Allow",
+      "Action": "sns:Publish",
+      "Resource": "__TOPIC_ARN__"
+    },
+    {
+      "Sid": "ReadAppParameters",
+      "Effect": "Allow",
+      "Action": "ssm:GetParameter",
+      "Resource": [
+        "arn:aws:ssm:__REGION__:__ACCOUNT_ID__:parameter/daily-briefing/gmail-app-password",
+        "arn:aws:ssm:__REGION__:__ACCOUNT_ID__:parameter/daily-briefing/settings"
+      ]
+    },
+    {
+      "Sid": "ReadBillingData",
+      "Effect": "Allow",
+      "Action": [
+        "ce:GetCostAndUsage",
+        "ce:GetCostForecast"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SaveRunHistory",
+      "Effect": "Allow",
+      "Action": "dynamodb:PutItem",
+      "Resource": "arn:aws:dynamodb:__REGION__:__ACCOUNT_ID__:table/daily-briefing-runs"
+    }
+  ]
+}
