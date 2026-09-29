@@ -28,9 +28,10 @@ STRICT RULES:
   skipping any not present in the data:
   GREETING (1 line), WEATHER (2-3 lines + a practical tip), AWS UPDATES (bullets),
   TECH NEWS (bullets), TODAY'S CALENDAR (bullets, keep the times),
-  TODAY'S TASKS AND UPDATES (bullets), AWS BILLING (spend so far this month, credits applied,
-  yesterday, forecast, top services; copy amounts EXACTLY, add 'USD'; always mention the
-  data-lag/remaining-credits limit from the data), DATA NOTES (list unavailable/stale sources).
+  TODAY'S TASKS AND UPDATES (bullets), AWS BILLING (bullets, in this order and wording: Month-to-date usage,
+  Credits applied this month, Month-to-date net charge, Yesterday's usage, Forecast month-end usage,
+  Top services; write amounts as '355.28 USD'; copy numbers EXACTLY; add NO notes, caveats or
+  advice about billing data), DATA NOTES (list unavailable/stale sources).
 - Keep the whole email under 250 words."""
 
 

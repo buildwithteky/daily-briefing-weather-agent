@@ -50,9 +50,7 @@ def summarize(ce, today: date) -> Dict[str, Any]:
     return {"month": start.strftime("%B %Y"), "currency": "USD",
             "month_to_date_usage": round(gross, 2), "credits_applied_this_month": round(-credits, 2),
             "month_to_date_net_charge": round(gross + credits, 2), "yesterday_usage": yesterday,
-            "forecast_month_end_usage": forecast, "top_services": top,
-            "limits": "Data can lag up to 24 hours. Remaining credit balance is not available via API; "
-                      "see the AWS console under Billing > Credits."}
+            "forecast_month_end_usage": forecast, "top_services": top}
 
 
 def get_billing(cfg: Config) -> SourceResult:
